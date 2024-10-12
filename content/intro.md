@@ -57,7 +57,7 @@ it returns things like:
 
 ---
 
-## try: src/commands/info
+## try: src/commands/info.ts
 
 in cashu-ts there are two methods that do this for you
 
@@ -83,7 +83,7 @@ minting is a three step process:
 
 ---
 
-## try: src/commands/mint
+## try: src/commands/mint.ts
 
 in cashu-ts this is as easy as
 
@@ -157,7 +157,7 @@ cashuBpGF0gaJhaUgArSaMTR9YJmFwgaNhYQFhc3hAOWE2ZGJiODQ3YmQyMzJiYTc2ZGIwZGYxOTcyMT
 
 ---
 
-## try: src/commands/token
+## try: src/commands/token.ts
 
 you can de/encode token in cashu-ts using a couple utility functions
 
@@ -182,3 +182,95 @@ const tokenData: Token = {
 };
 console.log(getEncodedToken(tokenData));
 ```
+
+---
+
+## learn: sending a cashu token
+
+sending a cashu token is as easy as sending someone the proofs that make up the token
+
+however, as cashu proofs have fixed denominations, we might need to swap our proofs first, in order to get the right amount
+
+---
+
+## example
+
+alice has a single 64 sat proof and wants to pay bob 33 sats.
+
+alice would first contact the mint and swap her 64 sat proof for many smaller ones:
+
+32,16,8,4,2,1,1
+
+---
+
+## try: src/commands/send.ts
+
+in cashu-ts the send method takes care of this automatically
+
+```ts [4]
+const mint = new CashuMint(mintUrl);
+const wallet = new CashuWallet(mint);
+
+// send contains the proofs that should be sent
+const { returnChange, send } = await wallet.send(9, myProofs);
+```
+
+---
+
+## learn: receive a cashu token
+
+in order to prevent double spendings we can not simply store a received token.
+
+first we got to invalidate the old token, by swapping it for a new one with the mint
+
+---
+
+## try: receive a cashu token
+
+call the receive method to swap token automatically
+
+```ts [4]
+const mint = new CashuMint(mintUrl);
+const wallet = new CashuWallet(mint);
+
+const newProofs = await wallet.receive(proofs);
+```
+
+---
+
+## learn: melt a cashu token
+
+spending a cashu token to pay a lightning invoice is called melting. Just like minting it is a multi step process.
+
+- send the payment request to the mint to get a quote
+- pay the quote
+
+the quote will include the **fee_reserve** that needs to be added to pay for lightning fees
+
+---
+
+## try: src/commands/melt.ts
+
+cashu-ts will handle fee reserve and swaps automatically for you
+
+```ts [4-5 |7-11]
+const mint = new CashuMint(mintUrl);
+const wallet = new CashuWallet(mint);
+
+const quote = await wallet.createMeltQuote(invoice);
+const payRes = await wallet.meltTokens(quote, proofsToSpend);
+
+if (payRes.isPaid) {
+  // you successfully paid the invoice
+}
+
+console.log(payRes.change);
+```
+
+---
+
+## call to action: get involved
+
+cashu-ts is a group effort and we are always looking for feedback and contributors!
+
+https://github.com/cashubtc/cashu-ts
