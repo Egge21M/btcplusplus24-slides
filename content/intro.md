@@ -14,7 +14,7 @@ to set up the practice project
 ```sh [1|2|3|4]
 git clone https://github.com/Egge21M/btcplusplus24-code
 cd btcplusplus24-code
-git checkout exercise
+git checkout main
 npm install
 ```
 
@@ -24,6 +24,14 @@ to install cashu-ts
 
 ```sh
 npm i @cashu/cashu-ts
+```
+
+---
+
+to build on change
+
+```sh
+npm run dev
 ```
 
 ---
