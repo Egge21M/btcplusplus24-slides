@@ -251,19 +251,22 @@ the quote will include the **fee_reserve** that needs to be added to pay for lig
 
 ## try: src/commands/melt.ts
 
-cashu-ts will handle fee reserve and swaps automatically for you
+cashu-ts handles lightning fees for you, but there is some work required
 
-```ts [4-5 |7-11]
+```ts [4 | 5 | 6 | 7 | 9-14]
 const mint = new CashuMint(mintUrl);
 const wallet = new CashuWallet(mint);
 
 const quote = await wallet.createMeltQuote(invoice);
+const totalAmount = quote.fee_reserve + invoiceAmount;
+const { returnChange, send } = await wallet.send(totalAmount, send);
 const payRes = await wallet.meltTokens(quote, proofsToSpend);
 
 if (payRes.isPaid) {
   // you successfully paid the invoice
 }
 
+// a mint might return some fee change
 console.log(payRes.change);
 ```
 
